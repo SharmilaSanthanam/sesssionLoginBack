@@ -10,6 +10,7 @@ require('./database');
 const http = require('http');
 const auth = require("./auth");
 const path = require("path");
+const cookieParser = require("cookie-parser");
 
 const app = express()
 const MAX_AGE = 1000 * 60 * 60 * 3 // 3hrs
@@ -31,7 +32,7 @@ const mongoDBstore = new MongoDBStore({
   uri: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.l6dfhzk.mongodb.net/?retryWrites=true&w=majority`,
   collection: 'mySessions',
 })
-
+app.use(cookieParser());
 app.use(
   session({
     secret: 'a1s2d3f4g5h6',
@@ -39,8 +40,8 @@ app.use(
     store: mongoDBstore,
     cookie: {
       maxAge: MAX_AGE, // this is when our cookies will expired and the session will not be valid anymore (user will be log out)
-      sameSite: false,
-      secure: false, // to turn on just in production
+      // sameSite: false,
+      // secure: false, // to turn on just in production
     },
     resave: true,
     saveUninitialized: false,
