@@ -4,13 +4,11 @@ const express = require('express')
 const mongoose = require('mongoose')
 const cors = require('cors')
 const MongoDBStore = require('connect-mongodb-session')(session) // add this package to store the user session id automatically on mongodb
-// check on your db, you will have another collection (next to people) which is 'mySessions'
+
 const loginRouter = require('./userRoutes')
 require('./database');
 const http = require('http');
-const auth = require("./auth");
 const path = require("path");
-const cookieParser = require("cookie-parser");
 
 const app = express()
 const MAX_AGE = 1000 * 60 * 60 * 3 // 3hrs
@@ -21,18 +19,14 @@ const corsOptions = {
   origin: '*',
   optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
 }
-// This is where your API is making its initial connection to the database
-// mongoose.Promise = global.Promise
-// mongoose.connect(process.env.DATABASE_CONNECTION_STRING, {
-//   useNewUrlParser: true,
-// })
 
 // setting up connect-mongodb-session store
+// in db, will have another collection (next to people) which is 'mySessions'
 const mongoDBstore = new MongoDBStore({
   uri: `mongodb+srv://${process.env.MONGODB_USERNAME}:${process.env.MONGODB_PASSWORD}@cluster0.l6dfhzk.mongodb.net/?retryWrites=true&w=majority`,
   collection: 'mySessions',
 })
-app.use(cookieParser());
+
 app.use(
   session({
     secret: 'a1s2d3f4g5h6',
@@ -40,8 +34,8 @@ app.use(
     store: mongoDBstore,
     cookie: {
       maxAge: MAX_AGE, // this is when our cookies will expired and the session will not be valid anymore (user will be log out)
-      // sameSite: false,
-      // secure: false, // to turn on just in production
+      sameSite: false,
+      secure: false, // to turn on just in production
     },
     resave: true,
     saveUninitialized: false,
@@ -50,7 +44,6 @@ app.use(
 
 app.use(cors(corsOptions))
 app.use(express.json())
-
 
 // ROUTERS
 app.use('/api', loginRouter)
