@@ -84,14 +84,27 @@ router.post(`/login`, async (req, res) => {
 //   });
 
 router.get(`/logout`, async (req, res) => {
+  const {userSession} = req.body;
   try{
-  req.session.destroy();
-  res.redirect('/');
-  // req.session.destroy((error) => {
-  //   if (error) throw error
+    if (req.session) {
+      // delete session object
+      req.session.destroy(function(err) {
+          if(err) {
+              return next(err);
+          } else {
+              req.session = null;
+              console.log("logout successful");
+              return res.redirect('/');
+          }
+      });
+  }  
+  // req.session.destroy();
+  // // res.redirect('/');
+  // // req.session.destroy((error) => {
+  // //   if (error) throw error
 
-  //   res.clearCookie('session-id') // cleaning the cookies from the user session
-    res.status(200).send('Logout Success')
+  // //   res.clearCookie('session-id') // cleaning the cookies from the user session
+  //   res.status(200).send('Logout Success')
   } catch(error){
     console.log(error.message);
   }
